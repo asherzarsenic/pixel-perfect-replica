@@ -1,4 +1,4 @@
-import { EMPTY_ANALYSIS, type BriefAnalysis, type BriefContext } from "./brief-types";
+import { EMPTY_ANALYSIS, type BriefAnalysis } from "./brief-types";
 
 const SYSTEM_PROMPT = `You are the analysis engine inside BRIEF BUSTER, a professional utility for freelance designers.
 
@@ -30,7 +30,7 @@ Use "" or [] where the brief gives no information.`;
 
 function extractJson(text: string): unknown {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const raw = fenced ? fenced[1] : text;
+  const raw = (fenced ? fenced[1] : text) ?? "";
   const start = raw.indexOf("{");
   const end = raw.lastIndexOf("}");
   if (start === -1 || end === -1) throw new Error("Model did not return JSON.");
@@ -56,33 +56,33 @@ function asObjectArray<T>(value: unknown, keys: (keyof T & string)[]): T[] {
 
 function normalize(input: unknown): BriefAnalysis {
   const o = (input ?? {}) as Record<string, unknown>;
-  const s = (o.summary ?? {}) as Record<string, unknown>;
+  const s = (o["summary"] ?? {}) as Record<string, unknown>;
   const str = (v: unknown) => (typeof v === "string" ? v : "");
   return {
-    projectName: str(o.projectName) || EMPTY_ANALYSIS.projectName,
+    projectName: str(o["projectName"]) || EMPTY_ANALYSIS.projectName,
     summary: {
-      deliverables: asStringArray(s.deliverables),
-      quantity: str(s.quantity),
-      styleDirection: str(s.styleDirection),
-      requirements: asStringArray(s.requirements),
-      deadline: str(s.deadline),
-      platform: str(s.platform),
-      audience: str(s.audience),
-      assetsMentioned: asStringArray(s.assetsMentioned),
+      deliverables: asStringArray(s["deliverables"]),
+      quantity: str(s["quantity"]),
+      styleDirection: str(s["styleDirection"]),
+      requirements: asStringArray(s["requirements"]),
+      deadline: str(s["deadline"]),
+      platform: str(s["platform"]),
+      audience: str(s["audience"]),
+      assetsMentioned: asStringArray(s["assetsMentioned"]),
     },
     clarifications: asObjectArray(o.clarifications, ["item", "whyItMatters", "question"]),
     contradictions: asObjectArray(o.contradictions, ["title", "detail"]),
     scopeRisks: asObjectArray(o.scopeRisks, ["title", "detail"]),
     translations: asObjectArray(o.translations, ["phrase", "couldMean", "askThis"]),
-    questions: asStringArray(o.questions),
-    protectMessage: str(o.protectMessage),
+    questions: asStringArray(o["questions"]),
+    protectMessage: str(o["protectMessage"]),
     brutal: asObjectArray(o.brutal, ["problem", "risk", "recommendation"]),
   };
 }
 
 export async function runBriefAnalysis(
   brief: string,
-  context: BriefContext,
+  context: Record<string, string | undefined>,
 ): Promise<BriefAnalysis> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("AI is not configured for this project.");
