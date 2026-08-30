@@ -70,13 +70,13 @@ function normalize(input: unknown): BriefAnalysis {
       audience: str(s["audience"]),
       assetsMentioned: asStringArray(s["assetsMentioned"]),
     },
-    clarifications: asObjectArray(o.clarifications, ["item", "whyItMatters", "question"]),
-    contradictions: asObjectArray(o.contradictions, ["title", "detail"]),
-    scopeRisks: asObjectArray(o.scopeRisks, ["title", "detail"]),
-    translations: asObjectArray(o.translations, ["phrase", "couldMean", "askThis"]),
+    clarifications: asObjectArray(o["clarifications"], ["item", "whyItMatters", "question"]),
+    contradictions: asObjectArray(o["contradictions"], ["title", "detail"]),
+    scopeRisks: asObjectArray(o["scopeRisks"], ["title", "detail"]),
+    translations: asObjectArray(o["translations"], ["phrase", "couldMean", "askThis"]),
     questions: asStringArray(o["questions"]),
     protectMessage: str(o["protectMessage"]),
-    brutal: asObjectArray(o.brutal, ["problem", "risk", "recommendation"]),
+    brutal: asObjectArray(o["brutal"], ["problem", "risk", "recommendation"]),
   };
 }
 
